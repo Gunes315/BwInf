@@ -35,6 +35,7 @@ public class schiebeparkplatz extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         outputField.setColumns(20);
+        outputField.setLineWrap(true);
         outputField.setRows(5);
         jScrollPane1.setViewportView(outputField);
 
@@ -57,13 +58,13 @@ public class schiebeparkplatz extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(47, 47, 47)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 213, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(60, 60, 60))
+                .addGap(80, 80, 80)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 316, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(43, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(mainButton)
-                .addGap(105, 105, 105))
+                .addGap(150, 150, 150))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -71,29 +72,22 @@ public class schiebeparkplatz extends javax.swing.JFrame {
                 .addGap(99, 99, 99)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(59, 59, 59)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
                 .addComponent(mainButton)
-                .addContainerGap(131, Short.MAX_VALUE))
+                .addGap(36, 36, 36))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-   //entire input
+   public int carsLeft;
+    public int carsRight;
+    //entire input
     public String[] input;
-
-    //Cars A-?
-    public String[] cars;
 
     //Horizontally parked cars (If car A is parked in 0 and 1 horiCars[0] and horiCars[1] is A)
     public String[] horiCars;
-    public String[] tempHori;
-
-    //Saves which cars can get out, without moving the horizontal cars
-    public boolean[] parkFree;
-
-    //Output with the information on how to move the horizontal cars, if necessary
-    public String[] output;
+    public String[] alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
 
     public void assignHorizontalCars() {
         int h = Integer.parseInt(input[1]);
@@ -116,194 +110,121 @@ public class schiebeparkplatz extends javax.swing.JFrame {
         return true;
     }
 
-    public void checkCars() {
-        for (int i = 0; i < parkFree.length; i++) {
-            if (horiCars[i] == null) {
-                parkFree[i] = true;
-            }
-            parkFree[i] = false;
-
-        }
-    }
-
     public int getNumber(char letter) {
         //pia = Place in Alphabet
         int pia = 1 + (int) letter - (int) 'A';
         return pia;
     }
 
-    public boolean moveLeft(int car, String horiCars[]) {
-
-        if (carFront(car, horiCars) && car - 2 >= 0 && horiCars[car - 2] == null) {
-            return true;
-        } else if (!carFront(car, horiCars) && car - 1 >= 0 && car - 2 >= 0 && horiCars[car - 1] == null && horiCars[car - 2] == null) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean moveLeft1(int car, String horiCars[]) {
-
-        if (car - 2 >= 0 && carFront(car, horiCars) && horiCars[car - 2] == null) {
-            return true;
-        } else if (car - 1 >= 0 && !carFront(car, horiCars) && horiCars[car - 1] == null) {
-            return true;
-        }
-        return false;
-    }
-
-    public void moving1() {
-        for (int g = 0; g < horiCars.length; g++) {
-            if (horiCars[g] != null) {
-                if (moveLeft(g, horiCars)) {
-                    if (carFront(g, horiCars)) {
-                        output[g] = "Move " + horiCars[g] + " 1 to the left.";
-
-                    } else {
-                        output[g] = "Move " + horiCars[g] + " 2 to the left.";
-                    }
-                } else if (moveRight(g, horiCars)) {
-                    if (!carFront(g, horiCars)) {
-                        output[g] = "Move " + horiCars[g] + " 1 to the right.";
-                    } else {
-                        output[g] = "Move " + horiCars[g] + " 2 to the right.";
-                    }
+    public String movingLeft(Integer car) {
+        carsLeft = 0;
+        String order = "";
+        int blankCount = 0;
+        int counter = car;
+        if (carFront(car, horiCars)) {
+            while (counter >= 0 && blankCount < 1) {
+                if (horiCars[counter] == null) {
+                    blankCount++;
                 }
-
+                counter--;
             }
-        }
-    }
-
-    public void moving2() {
-        for (int i = 0; i < output.length; i++) {
-            if (output[i] == null && horiCars[i] != null) {
-                tryToSolve(i);
+        } else {
+            while (counter >= 0 && blankCount < 2) {
+                if (horiCars[counter] == null) {
+                    blankCount++;
+                }
+                counter--;
             }
+
         }
-    }
 
-    public void right1(String array[], int car) {
-        array[car] = null;
-        array[car + 2] = array[car + 1];
+        counter = counter + 1;
+        if (carFront(car, horiCars) && blankCount == 1 || !carFront(car, horiCars) && blankCount == 2) {
+            for (int i = counter; i <= car; i++) {
 
-    }
-
-    public void left1(String array[], int car) {
-        array[car] = null;
-        array[car - 2] = array[car - 1];
-    }
-
-    public void tryToSolve(int car) {
-        String rCar = "";
-        String lCar = "";
-        boolean l = false;
-        boolean r = false;
-        int howManyR = 0;
-        int howManyL = 0;
-        // The closest car on the right, to the car, we're trying to move.
-        Integer rightCar = findCarRight(car);
-        Integer fRightCar = findCarRight(car);
-
-        // The closest car on the left, to the car, we're trying to move.
-        Integer leftCar = findCarLeft(car);
-        Integer fLeftCar = findCarLeft(car);
-
-        while (!moveRight(car, tempHori) && !moveLeft(car, tempHori)) {
-            if (rightCar != null) {
-                if (moveRight1(rightCar, tempHori)) {
-
-                    right1(tempHori, rightCar);
-                    howManyR++;
-                    if (moveRight(car, tempHori)) {
-                        rCar = tempHori[rightCar + 1];
-                        r = true;
-                        break;
+                int blank = 0;
+                if (horiCars[i] != null) {
+                    if (!carFront(i, horiCars)) {
+                        i++;
                     }
-                    rightCar = findCarRight(rightCar + 1);
-                    Integer x = findCarLeft(rightCar);
-                    while (x!=null && !horiCars[car].equals(tempHori[x]) ) {
-                      if (moveRight1(x,tempHori)){
-                          right1(tempHori,x);
-                      }  
-                      if(moveRight(car,tempHori)){
-                          r = true;
-                          break;
-                      } else {
-                          x=findCarLeft(x);
-                      }
-                      
+                    for (int o = counter; o <= i; o++) {
+                        if (horiCars[o] == null) {
+                            blank++;
+                        }
+                    }
+                    if (blank != 0) {
+                        carsLeft++;
+                        order = order + "Move car " + horiCars[i] + " " + blank + " to the left. ";
                     }
                 }
             }
-            if (leftCar != null) {
-                if (moveLeft1(leftCar, tempHori)) {
-                    left1(tempHori, leftCar);
-                    howManyL++;
-                    if (moveLeft(car, tempHori)) {
-                        lCar = tempHori[leftCar - 1];
-                        l = true;
-                        break;
+        }
+        return order;
+    }
+
+    public String movingRight(Integer car) {
+        carsRight = 0;
+        String order = "";
+        int blankCount = 0;
+        int counter = car;
+        if (carFront(car, horiCars)) {
+            while (counter < horiCars.length && blankCount < 2) {
+                if (horiCars[counter] == null) {
+                    blankCount++;
+                }
+                counter++;
+            }
+        } else {
+            while (counter < horiCars.length && blankCount < 1) {
+                if (horiCars[counter] == null) {
+                    blankCount++;
+                }
+                counter++;
+            }
+
+        }
+
+        counter = counter - 1;
+        if (carFront(car, horiCars) && blankCount == 2 || !carFront(car, horiCars) && blankCount == 1) {
+            for (int i = car; i <= counter; i++) {
+
+                int blank = 0;
+                if (horiCars[i] != null) {
+                    if (!carFront(i, horiCars)) {
+                        i++;
                     }
-                    leftCar = findCarLeft(leftCar - 1);
-                    Integer x = findCarRight(leftCar);
-                    while (x!=null && !horiCars[car].equals(tempHori[x]) ) {
-                      if (moveLeft1(x,tempHori)){
-                          left1(tempHori,x);
-                      }  
-                      if(moveLeft(car,tempHori)){
-                          l = true;
-                          break;
-                      } else {
-                          x=findCarRight(x);
+                    for (int o = i; o <= counter; o++) {
+                        if (horiCars[o] == null) {
+                            blank++;
+                        }
+                    }
+                    if (blank != 0) {
+                        carsRight++;
+                        order = order + "Move car " + horiCars[i] + " " + blank + " to the right. ";
+                    }
                 }
             }
         }
-        if (r) {
-            output[car] = "First Move " + rCar + " " + howManyR + " to the right, then move " + horiCars[car] + " to the right";
-        } else if (l) {
-            output[car] = "First Move " + lCar + " " + howManyL + " to the left, then move " + horiCars[car] + " to the left";
-        }
-
-    }}}
-
-    public Integer findCarRight(int st) {
-        int h = st;
-        String car = horiCars[st];
-
-        while (h < horiCars.length && horiCars[h] == car || h < horiCars.length && horiCars[h] == null) {
-            h++;
-        }
-        if (h < horiCars.length) {
-            return h;
-        }
-        return null;
+        return order;
     }
 
-    public int findCarLeft(int st) {
-        int h = st;
-        String car = horiCars[st];
-        while (h >= 0 && horiCars[h] == car || h >= 00 && horiCars[h] == null) {
-            h--;
-        }
-        return h;
-    }
+    public void connection() {
+        for (int i = 0; i < horiCars.length; i++) {
+            if (horiCars[i] != null) {
+                movingRight(i);
+                movingLeft(i);
+                if (carsRight <= carsLeft && carsRight != 0 || carsRight != 0 && carsLeft == 0) {
+                    outputField.append(alphabet[i] + " : ");
+                    outputField.append(movingRight(i) + "\n");
+                } else {
 
-    public boolean moveRight(int car, String horiCars[]) {
-        if (!carFront(car, horiCars) && car + 2 < horiCars.length && horiCars[car + 2] == null) {
-            return true;
-        } else if (carFront(car, horiCars) && car + 1 < horiCars.length && car + 2 < horiCars.length && horiCars[car + 1] == null && horiCars[car + 2] == null) {
-            return true;
+                    outputField.append(alphabet[i] + " : ");
+                    outputField.append(movingLeft(i) + "\n");
+                }
+            } else {
+                outputField.append(alphabet[i] + " : " + "\n");
+            }
         }
-        return false;
-    }
-
-    public boolean moveRight1(int car, String horiCars[]) {
-        if (!carFront(car, horiCars) && car + 2 < horiCars.length && horiCars[car + 2] == null) {
-            return true;
-        } else if (carFront(car, horiCars) && car + 1 < horiCars.length && horiCars[car + 1] == null) {
-            return true;
-        }
-        return false;
     }
     private void mainButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_mainButtonMouseClicked
         //Input exists?
@@ -319,23 +240,13 @@ public class schiebeparkplatz extends javax.swing.JFrame {
 
             int placeInAlphabet = getNumber(letter);
 
-            cars = new String[placeInAlphabet];
             horiCars = new String[placeInAlphabet];
-            tempHori = new String[placeInAlphabet];
-            output = new String[placeInAlphabet];
-            parkFree = new boolean[placeInAlphabet];
+
+           
 
             assignHorizontalCars();
-            tempHori = horiCars;
-//            System.out.println(carFront(5));
-//            System.out.println(moveRight(3));
-            moving1();
-            moving2();
-            
-            for (int h = 0; h < output.length; h++) {
-                System.out.println(output[h]);
-            }
-            System.out.println(findCarRight(0));
+
+            connection();
         }
     }//GEN-LAST:event_mainButtonMouseClicked
 
